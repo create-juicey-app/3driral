@@ -6,7 +6,7 @@ import CardOverflow from "@mui/joy/CardOverflow";
 import Divider from "@mui/joy/Divider";
 import Typography from "@mui/joy/Typography";
 import IconButton from "@mui/joy/IconButton";
-import Link from "@mui/joy/Link";
+import Link from "next/link";
 import Button from "@mui/joy/Button";
 import Download from "@mui/icons-material/Download";
 import Stack from "@mui/joy/Stack";
@@ -19,7 +19,7 @@ export default function YosemiteCard() {
   const isSmallScreen = useMediaQuery("(max-width: 600px)");
 
   return (
-    <Card variant="outlined" sx={{ maxWidth: 420, margin: "20px" }}>
+    <Card variant="outlined" sx={{ maxWidth: 420, margin: "20px", borderRadius:'20px' }}>
       <CardOverflow>
         <AspectRatio ratio="2">
           <Image
@@ -29,8 +29,8 @@ export default function YosemiteCard() {
             width={700}
             height={500}
             placeholder="blur"
-            blurDataURL="/blurtest.png"
-            alt=""
+            blurDataURL="/blurtest.jpg"
+            alt="title"
           />
         </AspectRatio>
       </CardOverflow>
@@ -38,7 +38,7 @@ export default function YosemiteCard() {
         <Stack direction="row" spacing={1} alignItems="center" mb={1}>
           <LocationOnIcon color="primary" />
           <Typography level="title-md">
-            <Link href="#multiple-actions" overlay underline="none">
+            <Link href="{id}" overlay underline="none">
               Testing
             </Link>
           </Typography>
