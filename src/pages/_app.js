@@ -32,6 +32,7 @@ export default function App({ Component, pageProps }) {
                 alt="3DRIRAL"
                 width={100}
                 height={30}
+                placeholder="blur"
                 sx={{ borderRadius: "10px" }}
               />
             </Button>
