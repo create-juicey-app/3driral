@@ -1,5 +1,5 @@
 import { Box, IconButton } from "@mui/material";
-import { Button, Stack } from "@mui/joy";
+import { Button, Stack, Typography } from "@mui/joy";
 import Image from "next/image";
 import Link from "next/link";
 import { MenuRounded } from "@mui/icons-material";
@@ -35,6 +35,12 @@ export default function App({ Component, pageProps }) {
                 placeholder="blur"
                 sx={{ borderRadius: "10px" }}
               />
+            </Button>
+          </Link>
+
+          <Link href="/models">
+            <Button variant="contained" color="primary">
+              <Typography>Models</Typography>
             </Button>
           </Link>
         </Stack>
