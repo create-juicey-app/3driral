@@ -18,8 +18,8 @@ import ViewInArRoundedIcon from "@mui/icons-material/ViewInArRounded";
 import FileUploadRoundedIcon from "@mui/icons-material/FileUploadRounded";
 import Head from "next/head";
 import Aritheme from "../theme.js";
-
 import { LoginRounded } from "@mui/icons-material";
+import { useRouter } from "next/router";
 
 export default function App({
   Component,
@@ -64,6 +64,7 @@ const LogoBar = () => {
   const { mode } = useColorScheme();
   const logoSrc = mode === "light" ? "/3DriralLight.png" : "/3DriralDark.png";
   const { data: session } = useSession();
+  const router = useRouter();
 
   return (
     <Box
@@ -71,7 +72,7 @@ const LogoBar = () => {
       sx={{
         p: 2,
         position: "fixed",
-        backgroundColor: "gray",
+        backgroundColor: "primary.solidActiveBg",
         borderBottomLeftRadius: "15px",
         borderBottomRightRadius: "15px",
         color: "white",
@@ -103,7 +104,7 @@ const LogoBar = () => {
             <Button
               sx={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
               startDecorator={<ViewInArRoundedIcon />}
-              variant="solid"
+              variant={router.pathname === "/models" ? "soft" : "solid"}
               color="primary"
             >
               <Typography>Models</Typography>
@@ -113,7 +114,7 @@ const LogoBar = () => {
             <Button
               sx={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
               endDecorator={<FileUploadRoundedIcon />}
-              variant="solid"
+              variant={router.pathname === "/upload" ? "soft" : "solid"}
               color="primary"
             >
               <Typography>Upload</Typography>

@@ -16,13 +16,14 @@ import Image from "next/image";
 import SearchIcon from "@mui/icons-material/Search";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import CircularProgress from "@mui/joy/CircularProgress";
-import ReportIcon from "@mui/icons-material/Report";
-import { Grid, Tooltip } from "@mui/joy";
+import { Grid, Tooltip, Input, Select, Option } from "@mui/joy";
 
 const YosemiteCards = () => {
   const [models, setModels] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortValue, setSortValue] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,6 +73,20 @@ const YosemiteCards = () => {
     return "Just now";
   }
 
+  const sortedModels = models.filter((model) =>
+    model.Name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (sortValue === "newest") {
+    sortedModels.sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
+  } else if (sortValue === "oldest") {
+    sortedModels.sort((a, b) => new Date(a.Timestamp) - new Date(b.Timestamp));
+  } else if (sortValue === "mostViews") {
+    sortedModels.sort((a, b) => b.Viewcount - a.Viewcount);
+  } else if (sortValue === "leastViews") {
+    sortedModels.sort((a, b) => a.Viewcount - b.Viewcount);
+  }
+
   if (isLoading) {
     return (
       <div
@@ -93,7 +108,7 @@ const YosemiteCards = () => {
     );
   }
 
-  if (hasError || models.length === 0) {
+  if (hasError) {
     return (
       <div
         style={{
@@ -110,119 +125,179 @@ const YosemiteCards = () => {
           size="lg"
           value={50}
           variant="soft"
-        >
-          <ReportIcon color="danger" />
-        </CircularProgress>
+        />
         <Typography variant="h6" color="danger" style={{ marginTop: "20px" }}>
-          {hasError
-            ? `Error : ${hasError.message}`
-            : "No Models in the database"}
+          Error: {hasError.message}
         </Typography>
       </div>
     );
   }
+
   return (
-    <Grid
-      sx={{ margin: "20px", flexGrow: 1 }}
-      container
-      spacing={{ xs: 2, md: 3 }}
-      columns={{ xs: 4, sm: 8, md: 12 }}
-    >
-      {models.map((model) => (
-        <Card
-          key={model._id}
-          variant="outlined"
-          sx={{ maxWidth: 420, margin: "10px", borderRadius: "20px" }}
+    <>
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{ margin: "20px", justifyContent: "center" }}
+      >
+        <Input
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          startDecorator={<SearchIcon color="primary" />}
+          endDecorator={
+            <Select
+              color="neutral"
+              placeholder="Sort"
+              size="md"
+              variant="outlined"
+              value={sortValue}
+              onChange={(e, value) => setSortValue(value)}
+            >
+              <Option value="">Default</Option>
+              <Option value="newest">Newest</Option>
+              <Option value="oldest">Oldest</Option>
+              <Option value="mostViews">Most Views</Option>
+              <Option value="leastViews">Least Views</Option>
+            </Select>
+          }
+        />
+      </Stack>
+      {sortedModels.length === 0 ? (
+        <>
+          <Typography
+            level="h4"
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "50vh",
+            }}
+          >
+            Nothing meets your criteria
+          </Typography>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "10vh", // This will make the div take the full height of the viewport
+            }}
+          >
+            <Image
+              alt="Nothing"
+              src="/Nothin.png"
+              width={210.5}
+              height={320}
+            ></Image>
+          </div>
+        </>
+      ) : (
+        <Grid
+          sx={{ margin: "20px", flexGrow: 1 }}
+          container
+          spacing={{ xs: 2, md: 3 }}
+          columns={{ xs: 4, sm: 8, md: 12 }}
         >
-          <CardOverflow>
-            <AspectRatio ratio="2">
-              <Image
-                src="/Placeholder2.png"
-                srcSet="/Placeholder2.png x2"
-                loading="eager"
-                width={700}
-                height={500}
-                placeholder="blur"
-                blurDataURL="/blurtest.jpg"
-                alt="title"
-              />
-            </AspectRatio>
-          </CardOverflow>
-          <CardContent>
-            <Stack direction="row" spacing={1} alignItems="center" mb={1}>
-              <LocationOnIcon color="primary" />
-              <Typography level="title-md">
-                <Link href={`/${model._id}`} underline="none">
-                  {model.Name}
-                </Link>
-              </Typography>
-            </Stack>
-            <Typography level="body-sm">
-              <Link href="#multiple-actions">{model.Author}</Link>
-            </Typography>
-          </CardContent>
-          <CardOverflow variant="soft">
-            <Divider inset="context" />
-            <CardContent orientation="horizontal">
-              <Typography level="body-xs">{model.Viewcount} views</Typography>
-              <Divider orientation="vertical" />
-              <Typography level="body-xs">
-                {getTimeSinceString(new Date(model.Timestamp))}
-              </Typography>
-              <Stack direction="row" spacing={1} sx={{ ml: "auto" }}>
-                {isSmallScreen ? (
-                  <>
-                    <Tooltip
-                      sx={{ borderRadius: "40px" }}
-                      title="Download"
-                      variant="outlined"
-                    >
-                      <IconButton
-                        sx={{ borderRadius: "40px" }}
-                        variant="solid"
-                        color="primary"
-                      >
-                        <Download />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip
-                      sx={{ borderRadius: "40px" }}
-                      title="View"
-                      variant="outlined"
-                    >
-                      <IconButton
-                        sx={{ borderRadius: "40px" }}
-                        variant="outlined"
-                        color="neutral"
-                      >
-                        <SearchIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </>
-                ) : (
-                  <>
-                    <Button
-                      variant="solid"
-                      color="primary"
-                      startDecorator={<Download />}
-                    >
-                      Download
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="neutral"
-                      startDecorator={<SearchIcon />}
-                    >
-                      View
-                    </Button>
-                  </>
-                )}
-              </Stack>
-            </CardContent>
-          </CardOverflow>
-        </Card>
-      ))}
-    </Grid>
+          {sortedModels.map((model) => (
+            <Card
+              key={model._id}
+              variant="outlined"
+              sx={{ maxWidth: 420, margin: "10px", borderRadius: "20px" }}
+            >
+              <CardOverflow>
+                <AspectRatio ratio="2">
+                  <Image
+                    src="/Placeholder2.png"
+                    srcSet="/Placeholder2.png x2"
+                    loading="eager"
+                    width={700}
+                    height={500}
+                    placeholder="blur"
+                    blurDataURL="/blurtest.jpg"
+                    alt="title"
+                  />
+                </AspectRatio>
+              </CardOverflow>
+              <CardContent>
+                <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                  <LocationOnIcon color="primary" />
+                  <Typography level="title-md">
+                    <Link href={`/${model._id}`} underline="none">
+                      {model.Name}
+                    </Link>
+                  </Typography>
+                </Stack>
+                <Typography level="body-sm">
+                  <Link href="#multiple-actions">{model.Author}</Link>
+                </Typography>
+              </CardContent>
+              <CardOverflow variant="soft">
+                <Divider inset="context" />
+                <CardContent orientation="horizontal">
+                  <Typography level="body-xs">
+                    {model.Viewcount} views
+                  </Typography>
+                  <Divider orientation="vertical" />
+                  <Typography level="body-xs">
+                    {getTimeSinceString(new Date(model.Timestamp))}
+                  </Typography>
+                  <Stack direction="row" spacing={1} sx={{ ml: "auto" }}>
+                    {isSmallScreen ? (
+                      <>
+                        <Tooltip
+                          sx={{ borderRadius: "40px" }}
+                          title="Download"
+                          variant="outlined"
+                        >
+                          <IconButton
+                            sx={{ borderRadius: "40px" }}
+                            variant="solid"
+                            color="primary"
+                          >
+                            <Download />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip
+                          sx={{ borderRadius: "40px" }}
+                          title="View"
+                          variant="outlined"
+                        >
+                          <IconButton
+                            sx={{ borderRadius: "40px" }}
+                            variant="outlined"
+                            color="neutral"
+                          >
+                            <SearchIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          variant="solid"
+                          color="primary"
+                          startDecorator={<Download />}
+                        >
+                          Download
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="neutral"
+                          startDecorator={<SearchIcon />}
+                        >
+                          View
+                        </Button>
+                      </>
+                    )}
+                  </Stack>
+                </CardContent>
+              </CardOverflow>
+            </Card>
+          ))}
+        </Grid>
+      )}
+    </>
   );
 };
 
