@@ -4,9 +4,8 @@ export default function Document() {
   return (
     <Html lang="en" data-color-scheme="dark">
       <Head>
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
         <link rel="preconnect" href="https://fonts.googleapis.com"/>
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true"/>
         <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet"></link>
       </Head>
     

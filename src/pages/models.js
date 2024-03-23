@@ -38,7 +38,7 @@ export default function YosemiteCard() {
         <Stack direction="row" spacing={1} alignItems="center" mb={1}>
           <LocationOnIcon color="primary" />
           <Typography level="title-md">
-            <Link href="{id}" overlay underline="none">
+            <Link href="{id}" underline="none">
               Testing
             </Link>
           </Typography>

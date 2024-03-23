@@ -1,6 +1,21 @@
 {
   "name": "3driral",
-  "version": "0.1.0",
+  "version": "0.3",
+  "description": "A platform for sharing and downloading 3D models for the game 'Voices Of The Void' by mrdrnose.",
+  "keywords": [
+    "3D models",
+    "Voices Of The Void",
+    "mrdrnose",
+    "platform",
+    "sharing",
+    "downloading"
+  ],
+  "author": "JuiceyDev",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/repository.git"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -15,8 +30,11 @@
     "@mui/icons-material": "^5.15.14",
     "@mui/joy": "^5.0.0-beta.32",
     "@mui/material": "^5.15.14",
+    "axios": "^1.6.8",
+    "dotenv": "^16.4.5",
     "mongodb": "^6.5.0",
     "next": "14.1.4",
+    "next-auth": "^4.24.7",
     "prettier": "^3.2.5",
     "react": "^18",
     "react-dom": "^18"
