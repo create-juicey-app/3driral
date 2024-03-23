@@ -17,8 +17,8 @@ import { useColorScheme } from "@mui/joy/styles";
 import ViewInArRoundedIcon from "@mui/icons-material/ViewInArRounded";
 import FileUploadRoundedIcon from "@mui/icons-material/FileUploadRounded";
 import Head from "next/head";
-import Aritheme from "./theme.js";
-import Themetest from "./themetest.js";
+import Aritheme from "../theme.js";
+
 import { LoginRounded } from "@mui/icons-material";
 
 export default function App({
