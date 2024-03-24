@@ -223,7 +223,7 @@ const YosemiteCards = () => {
                 <Stack direction="row" spacing={1} alignItems="center" mb={1}>
                   <LocationOnIcon color="primary" />
                   <Typography level="title-md">
-                    <Link href={`/${model._id}`} underline="none">
+                    <Link href={`/models/${model._id}`} underline="none">
                       {model.Name}
                     </Link>
                   </Typography>

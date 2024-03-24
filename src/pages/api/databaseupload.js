@@ -14,7 +14,8 @@ export default async function handler(req, res) {
       const db = client.db("Jdata"); // Access the "Jdata" database
       const collection = db.collection("models"); // Access the "models" collection
 
-      const { Name, Author, Viewcount, Timestamp, Filename, ID } = req.body;
+      const { Name, Author, Viewcount, Timestamp, Filename, ID, Description } =
+        req.body;
 
       // Check for missing fields
       const missingFields = [];
@@ -23,6 +24,7 @@ export default async function handler(req, res) {
       if (!Timestamp) missingFields.push("Timestamp");
       if (!Filename) missingFields.push("Filename");
       if (!ID) missingFields.push("ID");
+      if (!Description) missingFields.push("Description");
 
       if (missingFields.length > 0) {
         client.close();
@@ -38,6 +40,7 @@ export default async function handler(req, res) {
         Viewcount,
         Timestamp,
         Filename,
+        Description,
         _id: ID, // Use the provided ID directly (already validated as a valid ObjectId)
       });
 

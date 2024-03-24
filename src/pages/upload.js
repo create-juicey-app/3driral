@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { ObjectId } from "bson";
-import { Sheet, Input, Button, Typography, LinearProgress } from "@mui/joy";
+import {
+  Sheet,
+  Input,
+  Button,
+  Typography,
+  LinearProgress,
+  Textarea,
+} from "@mui/joy";
 import { useSession, signIn } from "next-auth/react";
 import { LoginRounded } from "@mui/icons-material";
 
@@ -9,10 +16,11 @@ const DatabaseUpload = () => {
   const { data: session } = useSession();
   const [formData, setFormData] = useState({
     Name: "",
-    Author: session?.user?.name || "",
+    Author: session?.user?.name || "WTF",
     Viewcount: 0,
     Timestamp: new Date().toISOString(),
     Filename: "",
+    Description: "",
   });
   const [uploadStatus, setUploadStatus] = useState(null);
 
@@ -38,6 +46,7 @@ const DatabaseUpload = () => {
         Viewcount: 0,
         Timestamp: new Date().toISOString(),
         Filename: "",
+        Description: "",
       });
     } catch (error) {
       console.error(error);
@@ -81,6 +90,17 @@ const DatabaseUpload = () => {
             value={formData.Filename}
             onChange={handleChange}
             required
+            variant="soft"
+          />
+          <br />
+          <Textarea
+            name="Description"
+            placeholder="Description"
+            value={formData.Description}
+            onChange={handleChange}
+            maxRows={6}
+            minRows={3}
+            maxLength={2000}
             variant="soft"
           />
           <br />
