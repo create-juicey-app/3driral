@@ -1,23 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Box, Stack, Typography, Button } from "@mui/joy";
-import dynamic from "next/dynamic";
+import { Box, Stack, Typography, Button, Alert } from "@mui/joy";
 import { useRouter } from "next/router";
-
-// Load the OBJModel component dynamically on the client-side
-const OBJModel = dynamic(
-  () => import("react-3d-viewer").then((module) => module.OBJModel),
-  {
-    ssr: false, // Disable server-side rendering for this component
-  }
-);
+import * as THREE from "three";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 
 const ModelPage = () => {
   const [data, setData] = useState(null);
   const [status, setStatus] = useState("Idle");
   const [error, setError] = useState(null);
+  const [objData, setObjData] = useState(null);
   const router = useRouter();
   const { id } = router.query;
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     console.log("useEffect called");
@@ -25,6 +20,85 @@ const ModelPage = () => {
     console.log("Path ID:", pathId);
     fetchData(pathId);
   }, [router.asPath]);
+
+  useEffect(() => {
+    if (data) {
+      const { Filename } = data;
+      fetchObjData(Filename);
+    }
+  }, [data]);
+
+  const fetchObjData = async (filename) => {
+    try {
+      const response = await axios.get(`/api/loadmodel?filename=${filename}`, {
+        responseType: "arraybuffer",
+      });
+      const objDataBuffer = response.data;
+      const objDataString = new TextDecoder().decode(objDataBuffer);
+      setObjData(objDataString);
+    } catch (error) {
+      console.error("Error fetching OBJ data", error);
+      setError("Failed to load OBJ file");
+    }
+  };
+
+  useEffect(() => {
+    if (!canvasRef.current) return; // Return early if canvasRef.current is null
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    canvasRef.current.appendChild(renderer.domElement); // Append to canvas only if canvasRef.current is not null
+
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+
+    const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+    pointLight.position.set(0, 0, 20);
+    scene.add(pointLight);
+
+    const objLoader = new OBJLoader();
+    objLoader.setPath("/models/");
+
+    const renderModel = (objDataString) => {
+      objLoader.parse(objDataString, (object) => {
+        scene.add(object);
+        const box = new THREE.Box3().setFromObject(object);
+        const size = box.getSize(new THREE.Vector3()).length();
+        const center = box.getCenter(new THREE.Vector3());
+        camera.position.x = center.x;
+        camera.position.y = center.y;
+        camera.position.z = center.z + size / 0.5;
+        camera.lookAt(center);
+        camera.near = size / 100;
+        camera.far = size * 100;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        const animate = () => {
+          requestAnimationFrame(animate);
+          object.rotation.x += 0.01;
+          object.rotation.y += 0.01;
+          renderer.render(scene, camera);
+        };
+        animate();
+      });
+    };
+
+    if (objData) {
+      renderModel(objData);
+    }
+
+    return () => {
+      // Clean up resources when the component unmounts
+      renderer.dispose();
+    };
+  }, [objData]);
 
   const fetchData = async (itemId) => {
     setStatus("Sending");
@@ -79,21 +153,15 @@ const ModelPage = () => {
     return "Recently";
   }
 
-  console.log(`/models/${Filename}`);
-  console.log(`File name: ${Filename}`);
-
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
       <Box sx={{ flex: 1, backgroundColor: "#111", padding: 2 }}>
-        {OBJModel && (
-          <OBJModel
-            width="400"
-            height="400"
-            position={{ x: 0, y: -100, z: 0 }}
-            src={`/models/${Filename}`}
-          />
+        <canvas ref={canvasRef} />
+        {error && (
+          <Alert variant="soft" sx={{ marginTop: 2 }}>
+            {error}
+          </Alert>
         )}
-        <img src={`/models/${Filename}`} alt="Model" />;
       </Box>
       <Box sx={{ flex: 1, backgroundColor: "#222", padding: 2 }}>
         <Typography level="h1" variant="soft" sx={{ borderRadius: "50px" }}>
