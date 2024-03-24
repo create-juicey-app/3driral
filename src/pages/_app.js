@@ -9,6 +9,11 @@ import {
   ButtonGroup,
   Box,
   IconButton,
+  Dropdown,
+  MenuButton,
+  Menu,
+  MenuItem,
+  ListItemDecorator,
 } from "@mui/joy";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,7 +23,13 @@ import ViewInArRoundedIcon from "@mui/icons-material/ViewInArRounded";
 import FileUploadRoundedIcon from "@mui/icons-material/FileUploadRounded";
 import Head from "next/head";
 import Aritheme from "../theme.js";
-import { LoginRounded } from "@mui/icons-material";
+import {
+  AccountCircleRounded,
+  Login,
+  LoginRounded,
+  LogoutRounded,
+  SettingsRounded,
+} from "@mui/icons-material";
 import { useRouter } from "next/router";
 
 export default function App({
@@ -123,7 +134,62 @@ const LogoBar = () => {
         </ButtonGroup>
         <div style={{ position: "absolute", right: 1 }}>
           {session ? (
-            <Avatar alt="Riral" src={session.user.image} />
+            <>
+              <Dropdown>
+                <MenuButton
+                  slots={{ root: IconButton }}
+                  slotProps={{ root: { variant: "plain", color: "neutral" } }}
+                  sx={{
+                    borderRadius: 40,
+                    marginTop: "3px",
+                    aspectRatio: "1/1",
+                  }}
+                >
+                  <Avatar alt="Riral" src={session.user.image} />
+                </MenuButton>
+                <Menu
+                  variant="outlined"
+                  invertedColors
+                  aria-labelledby="apps-menu-demo"
+                  sx={{
+                    "--List-padding": "0.5rem",
+                    borderRadius: "10px",
+                    "--ListItemDecorator-size": "3rem",
+                    gridTemplateColumns: "repeat(3, 100px)",
+                    gridAutoRows: "100px",
+                    gap: 1,
+                  }}
+                >
+                  <Sheet
+                    variant="solid"
+                    sx={{
+                      padding: "50px",
+                      margin: 0,
+                      width: "100%",
+                      boxSizing: "border-box",
+                    }}
+                  ></Sheet>
+                  <MenuItem orientation="horizontal">
+                    <ListItemDecorator>
+                      <AccountCircleRounded />
+                    </ListItemDecorator>
+                    Profile
+                  </MenuItem>
+                  <MenuItem orientation="horizontal">
+                    <ListItemDecorator>
+                      <SettingsRounded />
+                    </ListItemDecorator>
+                    Settings
+                  </MenuItem>
+                  <MenuItem orientation="horizontal">
+                    <ListItemDecorator>
+                      <LogoutRounded />
+                    </ListItemDecorator>
+                    Logout
+                  </MenuItem>
+                </Menu>
+              </Dropdown>
+            </>
           ) : (
             <Link href="/api/auth/signin">
               <IconButton sx={{ borderRadius: "80px" }} color="primary">

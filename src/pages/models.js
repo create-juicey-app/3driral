@@ -16,7 +16,19 @@ import Image from "next/image";
 import SearchIcon from "@mui/icons-material/Search";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import CircularProgress from "@mui/joy/CircularProgress";
-import { Grid, Tooltip, Input, Select, Option } from "@mui/joy";
+import { Grid, Input, Select, Option } from "@mui/joy";
+import Tooltip from "@mui/material/Tooltip";
+import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
+import {
+  DisabledByDefaultRounded,
+  Filter1Rounded,
+  FilterAltRounded,
+  FilterRounded,
+  KeyboardArrowDownRounded,
+  StarBorderRounded,
+  StarRateRounded,
+  VisibilityRounded,
+} from "@mui/icons-material";
 
 const YosemiteCards = () => {
   const [models, setModels] = useState([]);
@@ -141,27 +153,43 @@ const YosemiteCards = () => {
         sx={{ margin: "20px", justifyContent: "center" }}
       >
         <Input
+          sx={{ borderRadius: "40px" }}
           placeholder="Search..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          startDecorator={<SearchIcon color="primary" />}
-          endDecorator={
-            <Select
-              color="neutral"
-              placeholder="Sort"
-              size="md"
-              variant="outlined"
-              value={sortValue}
-              onChange={(e, value) => setSortValue(value)}
-            >
-              <Option value="">Default</Option>
-              <Option value="newest">Newest</Option>
-              <Option value="oldest">Oldest</Option>
-              <Option value="mostViews">Most Views</Option>
-              <Option value="leastViews">Least Views</Option>
-            </Select>
-          }
+          startDecorator={<SearchIcon />}
         />
+        <Select
+          sx={{ borderRadius: "18px" }}
+          color="neutral"
+          placeholder="Sort"
+          size="md"
+          variant="outlined"
+          startDecorator={<FilterAltRounded />}
+          value={sortValue}
+          onChange={(e, value) => setSortValue(value)}
+        >
+          <Option value="">
+            <DisabledByDefaultRounded />
+            Default
+          </Option>
+          <Option value="newest">
+            <KeyboardArrowUpRoundedIcon />
+            Newest
+          </Option>
+          <Option value="oldest">
+            <KeyboardArrowDownRounded />
+            Oldest
+          </Option>
+          <Option value="mostViews">
+            <StarRateRounded />
+            Most Views
+          </Option>
+          <Option value="leastViews">
+            <StarBorderRounded />
+            Least Views
+          </Option>
+        </Select>
       </Stack>
       {sortedModels.length === 0 ? (
         <>
@@ -235,11 +263,14 @@ const YosemiteCards = () => {
               <CardOverflow variant="soft">
                 <Divider inset="context" />
                 <CardContent orientation="horizontal">
-                  <Typography level="body-xs">
-                    {model.Viewcount} views
-                  </Typography>
+                  <Stack direction="column" alignItems="center">
+                    <div>
+                      <Typography level="body">{model.Viewcount}</Typography>
+                    </div>
+                    Views
+                  </Stack>
                   <Divider orientation="vertical" />
-                  <Typography level="body-xs">
+                  <Typography level="body">
                     {getTimeSinceString(new Date(model.Timestamp))}
                   </Typography>
                   <Stack direction="row" spacing={1} sx={{ ml: "auto" }}>
