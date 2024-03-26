@@ -61,9 +61,17 @@ export default function App({
               bottom: 0,
               zIndex: -50,
               marginTop: "36px",
+              overflow: "auto", // Change overflow to "auto"
+              width: "100vw",
+              height: "100vh",
+              boxSizing: "border-box", // Add this line
             }}
           >
-            <Component {...pageProps} id="forcedark" />
+            <Component
+              style={{ marginTop: "36px" }}
+              {...pageProps}
+              id="forcedark"
+            />
           </Sheet>
         </SessionProvider>
       </CssBaseline>

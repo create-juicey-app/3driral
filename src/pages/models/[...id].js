@@ -1,121 +1,72 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Box, Stack, Typography, Button, Alert } from "@mui/joy";
+import { Box, Typography, Alert, Button } from "@mui/joy";
 import { useRouter } from "next/router";
-import * as THREE from "three";
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import {
+  Vector3,
+  Color3,
+  ActionManager,
+  SetValueAction,
+  SceneLoader,
+} from "@babylonjs/core";
+import { Cylinder, Engine, Scene, Sphere } from "react-babylonjs";
 
 const ModelPage = () => {
   const [data, setData] = useState(null);
   const [status, setStatus] = useState("Idle");
   const [error, setError] = useState(null);
-  const [objData, setObjData] = useState(null);
   const router = useRouter();
   const { id } = router.query;
   const canvasRef = useRef(null);
+  const sceneRef = useRef(null);
 
   useEffect(() => {
-    console.log("useEffect called");
     const pathId = router.asPath.split("/").pop();
-    console.log("Path ID:", pathId);
     fetchData(pathId);
   }, [router.asPath]);
 
-  useEffect(() => {
-    if (data) {
-      const { Filename } = data;
-      fetchObjData(Filename);
-    }
-  }, [data]);
-
-  const fetchObjData = async (filename) => {
+  const fetchData = async (itemId) => {
+    setStatus("Sending");
     try {
-      const response = await axios.get(`/api/loadmodel?filename=${filename}`, {
-        responseType: "arraybuffer",
-      });
-      const objDataBuffer = response.data;
-      const objDataString = new TextDecoder().decode(objDataBuffer);
-      setObjData(objDataString);
+      const response = await axios.get("/api/database");
+      const allData = response.data;
+      const itemData = allData.find((item) => item._id === itemId);
+      setData(itemData);
+      setStatus("Getting");
+      fetchObjData(itemData.Filename);
     } catch (error) {
-      console.error("Error fetching OBJ data", error);
-      setError("Failed to load OBJ file");
+      setStatus("Error");
+      setError(error);
     }
   };
 
-  useEffect(() => {
-    if (!canvasRef.current) return; // Return early if canvasRef.current is null
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    canvasRef.current.appendChild(renderer.domElement); // Append to canvas only if canvasRef.current is not null
-
-    const ambientLight = new THREE.AmbientLight(0x404040);
-    scene.add(ambientLight);
-
-    const pointLight = new THREE.PointLight(0xffffff, 1, 100);
-    pointLight.position.set(0, 0, 20);
-    scene.add(pointLight);
-
-    const objLoader = new OBJLoader();
-    objLoader.setPath("/models/");
-
-    const renderModel = (objDataString) => {
-      objLoader.parse(objDataString, (object) => {
-        scene.add(object);
-        const box = new THREE.Box3().setFromObject(object);
-        const size = box.getSize(new THREE.Vector3()).length();
-        const center = box.getCenter(new THREE.Vector3());
-        camera.position.x = center.x;
-        camera.position.y = center.y;
-        camera.position.z = center.z + size / 0.5;
-        camera.lookAt(center);
-        camera.near = size / 100;
-        camera.far = size * 100;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        const animate = () => {
-          requestAnimationFrame(animate);
-          object.rotation.x += 0.01;
-          object.rotation.y += 0.01;
-          renderer.render(scene, camera);
-        };
-        animate();
-      });
-    };
-
-    if (objData) {
-      renderModel(objData);
-    }
-
-    return () => {
-      // Clean up resources when the component unmounts
-      renderer.dispose();
-    };
-  }, [objData]);
-
-  const fetchData = async (itemId) => {
-    setStatus("Sending");
-    console.log("Fetching data from API...");
+  const fetchObjData = async (filename) => {
     try {
-      const response = await axios.get("/api/database");
-      console.log("API response:", response.data);
-      const allData = response.data;
-      console.log("All data:", allData);
-      const itemData = allData.find((item) => item._id === itemId);
-      console.log("Found item data:", itemData);
-      setData(itemData);
-      setStatus("Getting");
+      const response = await axios.get(
+        `/api/loadmodeltest?filename=${filename}`
+      );
+      const objDataString = response.data;
+      renderModel(objDataString);
     } catch (error) {
-      console.error("Error fetching data", error);
-      setStatus("Error");
       setError(error);
+    }
+  };
+
+  const renderModel = (objDataString) => {
+    if (sceneRef.current) {
+      SceneLoader.ImportMesh(
+        "",
+        `data:${objDataString}`,
+        "",
+        sceneRef.current,
+        (newMeshes) => {
+          console.log("Meshes imported:", newMeshes);
+          // Handle imported meshes here if needed
+        },
+        null,
+        null,
+        ".obj"
+      );
     }
   };
 
@@ -130,7 +81,6 @@ const ModelPage = () => {
     return diffInMilliseconds / 1000;
   }
 
-  // Helper function to calculate the time elapsed since the Timestamp
   function getTimeSinceString(date) {
     const currentDate = new Date();
     const secondsDifference = getSecondsDifference(currentDate, date);
@@ -154,16 +104,54 @@ const ModelPage = () => {
   }
 
   return (
-    <Box sx={{ display: "flex", height: "100vh" }}>
-      <Box sx={{ flex: 1, backgroundColor: "#111", padding: 2 }}>
-        <canvas ref={canvasRef} />
+    <Box sx={{ display: "flex", height: "95vh", overflow: "hidden" }}>
+      <Box
+        sx={{
+          flex: 1,
+          padding: 0,
+          overflow: "hidden",
+        }}
+      >
+        <Engine
+          antialias={true}
+          adaptToDeviceRatio={true}
+          canvasId="sample-canvas"
+        >
+          <Scene ref={sceneRef} id="sample-canvas">
+            <arcRotateCamera
+              name="camera1"
+              alpha={Math.PI / -2}
+              beta={Math.PI / 2}
+              radius={0.05}
+              target={Vector3.Zero()}
+              minZ={0.001}
+            />
+            <hemisphericLight
+              name="light1"
+              intensity={0.8}
+              direction={Vector3.Up()}
+            />
+            <Sphere name="sphere1" diameter={0.005} />
+            {/* model from api goes here */}
+          </Scene>
+        </Engine>
         {error && (
           <Alert variant="soft" sx={{ marginTop: 2 }}>
-            {error}
+            <Typography>{error.toString()}</Typography>
           </Alert>
         )}
       </Box>
-      <Box sx={{ flex: 1, backgroundColor: "#222", padding: 2 }}>
+      <Box
+        sx={{
+          flex: 1,
+          backgroundColor: "#222",
+          padding: 2,
+          overflowY: "hidden", // Prevent scrolling
+          overflowx: "hidden",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <Typography level="h1" variant="soft" sx={{ borderRadius: "50px" }}>
           {Name}
         </Typography>
@@ -185,7 +173,10 @@ const ModelPage = () => {
         >
           {Description}
         </Typography>
-        <Button sx={{ marginLeft: "3vw" }} variant="solid">
+        <Button
+          sx={{ marginLeft: "3vw", marginRight: "3vw", marginTop: "1vh" }}
+          variant="solid"
+        >
           Download Model
         </Button>
       </Box>
