@@ -97,7 +97,7 @@ export default function App({ Component, pageProps })
     },
   },
 });
-
+  const { mode, setMode } = useColorScheme();
   return (
     <CssVarsProvider 
     defaultMode="dark"
