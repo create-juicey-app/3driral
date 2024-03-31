@@ -16,7 +16,7 @@ const DatabaseUpload = () => {
   const { data: session } = useSession();
   const [formData, setFormData] = useState({
     Name: "",
-    Author: session?.user?.name || "WTF",
+    Author: session?.user?.name,
     Viewcount: 0,
     Timestamp: new Date().toISOString(),
     Filename: "",

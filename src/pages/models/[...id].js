@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Box, Typography, Alert, Button } from "@mui/joy";
+import { Box, Typography, Alert, Button, CircularProgress } from "@mui/joy";
 import { useRouter } from "next/router";
 import { Canvas, extend, useThree, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
-import { MTLLoader } from "three/addons/loaders/MTLLoader.js";
-import { TextureLoader } from "three/src/loaders/TextureLoader.js";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import * as THREE from "three";
 
 extend({ OrbitControls });
@@ -73,22 +71,10 @@ const ModelPage = () => {
 
   const loadOBJModel = async (filename) => {
     const objLoader = new OBJLoader();
-    const mtlLoader = new MTLLoader();
-
-    mtlLoader.setResourcePath("/textures/"); // Set the resource path for textures
-
     try {
-      const materials = await new Promise((resolve, reject) => {
-        mtlLoader.load(`/materials/${filename}.mtl`, resolve, null, reject);
-      });
-
-      materials.preload();
-
       const object = await new Promise((resolve, reject) => {
-        objLoader.setMaterials(materials);
-        objLoader.load(`/models/${filename}.obj`, resolve, null, reject);
+        objLoader.load(`/models/${filename}`, resolve, null, reject);
       });
-
       traverseObject(object);
       setLoadedObject(object);
     } catch (error) {
@@ -121,7 +107,12 @@ const ModelPage = () => {
     }
   };
 
-  if (!data) return <Typography>Loading...</Typography>;
+  if (!data)
+    return (
+      <CircularProgress
+        sx={{ position: "absolute", top: "42%", left: "48%" }}
+      />
+    );
 
   const { Name, Author, Viewcount, Timestamp, Description } = data;
 

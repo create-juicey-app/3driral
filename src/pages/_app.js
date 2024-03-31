@@ -15,6 +15,7 @@ import {
   MenuItem,
   ListItemDecorator,
 } from "@mui/joy";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { SessionProvider, useSession } from "next-auth/react";
@@ -31,11 +32,63 @@ import {
   SettingsRounded,
 } from "@mui/icons-material";
 import { useRouter } from "next/router";
+import { AnimatePresence, motion } from "framer-motion";
+
+// CSS to hide scrollbars by default
+const styles = `
+body {
+  overflow: hidden;
+}
+`;
+
+const Layout = ({ children }) => (
+  <motion.div
+    initial={{ scale: 0.8, opacity: 0 }}
+    animate={{ scale: 1, opacity: 1 }}
+    exit={{ scale: 0.8, opacity: 0 }}
+    transition={{
+      type: "spring",
+      stiffness: 260,
+      damping: 20,
+    }}
+  >
+    {children}
+  </motion.div>
+);
 
 export default function App({
   Component,
   pageProps: { session, ...pageProps },
 }) {
+  const router = useRouter();
+
+  // Add event listener to handle scrollbar visibility
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const body = document.body;
+      const html = document.documentElement;
+      const height = Math.max(
+        body.scrollHeight,
+        body.offsetHeight,
+        html.clientHeight,
+        html.scrollHeight,
+        html.offsetHeight
+      );
+      const scrollPosition =
+        window.pageYOffset ||
+        (document.documentElement || body.parentNode || body).scrollTop;
+
+      if (height > window.innerHeight && scrollPosition > 0) {
+        body.style.overflowY = "auto";
+      } else {
+        body.style.overflowY = "hidden";
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <CssVarsProvider
       defaultMode="dark"
@@ -43,36 +96,43 @@ export default function App({
       modeStorageKey="darkmode"
       theme={Aritheme}
       disableNestedContext
+      sx={{ backgroundColor: "#1a1a1a" }}
     >
       <Head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <style>{styles}</style>
       </Head>
       <CssBaseline>
         <SessionProvider session={session}>
           <LogoBar />
-          <Sheet
-            id="forcedark"
-            variant="soft"
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: -50,
-              marginTop: "36px",
-              overflow: "auto", // Change overflow to "auto"
-              width: "100vw",
-              height: "100vh",
-              boxSizing: "border-box", // Add this line
-            }}
-          >
-            <Component
-              style={{ marginTop: "36px" }}
-              {...pageProps}
+
+          <Layout key={router.asPath}>
+            <Sheet
               id="forcedark"
-            />
-          </Sheet>
+              variant="soft"
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: -50,
+                marginTop: "36px",
+                overflow: "hidden",
+                width: "100vw",
+                height: "100vh",
+                boxSizing: "border-box",
+              }}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <Component
+                  style={{ marginTop: "36px" }}
+                  {...pageProps}
+                  id="forcedark"
+                />
+              </AnimatePresence>
+            </Sheet>
+          </Layout>
         </SessionProvider>
       </CssBaseline>
     </CssVarsProvider>
@@ -90,6 +150,7 @@ const LogoBar = () => {
       id="forcedark"
       sx={{
         p: 2,
+        zIndex: 100,
         position: "fixed",
         backgroundColor: "primary.solidActiveBg",
         borderBottomLeftRadius: "15px",

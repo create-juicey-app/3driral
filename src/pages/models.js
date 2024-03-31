@@ -235,16 +235,18 @@ const YosemiteCards = () => {
             >
               <CardOverflow>
                 <AspectRatio ratio="2">
-                  <Image
-                    src="/Placeholder2.png"
-                    srcSet="/Placeholder2.png x2"
-                    loading="eager"
-                    width={700}
-                    height={500}
-                    placeholder="blur"
-                    blurDataURL="/blurtest.jpg"
-                    alt="title"
-                  />
+                  <Link href={`/models/${model._id}`} underline="none">
+                    <Image
+                      src="/Placeholder2.png"
+                      srcSet="/Placeholder2.png x2"
+                      loading="eager"
+                      width={700}
+                      height={500}
+                      placeholder="blur"
+                      blurDataURL="/blurtest.jpg"
+                      alt="title"
+                    />
+                  </Link>
                 </AspectRatio>
               </CardOverflow>
               <CardContent>
