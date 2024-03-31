@@ -32,8 +32,9 @@
     "@mui/icons-material": "^5.15.14",
     "@mui/joy": "^5.0.0-beta.32",
     "@mui/material": "^5.15.14",
+    "@react-three/fiber": "^8.16.1",
+    "@types/three": "^0.163.0",
     "axios": "^1.6.8",
-    "babylonjs": "^6.48.1",
     "cloudinary": "^2.0.3",
     "dotenv": "^16.4.5",
     "flatted": "^3.3.1",
@@ -43,7 +44,6 @@
     "obj-loader": "^0.0.5",
     "prettier": "^3.2.5",
     "react": "^18",
-    "react-babylonjs": "^3.1.30",
     "react-dom": "^18",
     "sharp": "^0.33.3",
     "three": "^0.162.0"
