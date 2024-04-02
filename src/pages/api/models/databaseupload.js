@@ -1,23 +1,28 @@
 // pages/api/databaseupload.js
-
-import { MongoClient } from "mongodb";
+import { getSession } from "next-auth/react";
+import { MongoClient, ObjectId } from "mongodb";
 import dotenv from "dotenv";
 
-dotenv.config(); // Load environment variables from .env file
+dotenv.config();
 
-const uri = process.env.MONGODB_URI; // MongoDB connection string
+const uri = process.env.MONGODB_URI;
 
 export default async function handler(req, res) {
+  const session = await getSession({ req });
+
+  if (!session) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   if (req.method === "PUT") {
     try {
       const client = await MongoClient.connect(uri);
-      const db = client.db("Jdata"); // Access the "Jdata" database
-      const collection = db.collection("models"); // Access the "models" collection
+      const db = client.db("Jdata");
+      const collection = db.collection("models");
 
       const { Name, Author, Viewcount, Timestamp, Filename, ID, Description } =
         req.body;
 
-      // Check for missing fields
       const missingFields = [];
       if (!Name) missingFields.push("Name");
       if (!Author) missingFields.push("Author");
@@ -33,7 +38,6 @@ export default async function handler(req, res) {
         });
       }
 
-      // Insert the data into the "models" collection
       const result = await collection.insertOne({
         Name,
         Author,
@@ -41,11 +45,10 @@ export default async function handler(req, res) {
         Timestamp,
         Filename,
         Description,
-        _id: ID, // Use the provided ID directly (already validated as a valid ObjectId)
+        _id: new ObjectId(ID),
       });
 
-      client.close(); // Close the MongoDB connection
-
+      client.close();
       res.status(201).json({
         message: "Data inserted successfully",
         _id: result.insertedId,

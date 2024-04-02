@@ -48,8 +48,8 @@ const Layout = ({ children }) => (
     exit={{ scale: 0.8, opacity: 0 }}
     transition={{
       type: "spring",
-      stiffness: 260,
-      damping: 20,
+      stiffness: 400,
+      damping: 25,
     }}
   >
     {children}
@@ -96,7 +96,6 @@ export default function App({
       modeStorageKey="darkmode"
       theme={Aritheme}
       disableNestedContext
-      sx={{ backgroundColor: "#1a1a1a" }}
     >
       <Head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
